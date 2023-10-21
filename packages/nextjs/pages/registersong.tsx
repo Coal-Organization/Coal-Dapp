@@ -1,4 +1,3 @@
-import React from "react";
 import { NextPage } from "next";
 import { AudioContext } from "web-audio-api";
 
