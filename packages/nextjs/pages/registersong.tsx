@@ -1,8 +1,9 @@
-import { songTrad } from "../../basicPitch/songenc";
+import { songTrad } from "../basicPitch/songenc";
 import { NextPage } from "next";
 
 const RegisterSong: NextPage = () => {
   const handleClick = async () => {
+    console.log("clicked");
     await songTrad();
   };
 
@@ -15,7 +16,7 @@ const RegisterSong: NextPage = () => {
       </div>
       <div>
         <input type="file" accept="audio/*" />
-        <button onClick={() => handleClick}>Upload</button>
+        <button onClick={handleClick}>Upload</button>
       </div>
     </div>
   );

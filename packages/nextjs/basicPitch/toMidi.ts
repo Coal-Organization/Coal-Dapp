@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Midi } from '@tonejs/midi';
+import { Midi } from "@tonejs/midi";
 
 type Optional<T> = T | null;
 
@@ -40,15 +40,12 @@ const FFT_HOP = 256;
 const ANNOTATIONS_FPS = Math.floor(AUDIO_SAMPLE_RATE / FFT_HOP);
 const ANNOT_N_FRAMES = ANNOTATIONS_FPS * AUDIO_WINDOW_LENGTH;
 const AUDIO_N_SAMPLES = AUDIO_SAMPLE_RATE * AUDIO_WINDOW_LENGTH - FFT_HOP;
-const WINDOW_OFFSET =
-  (FFT_HOP / AUDIO_SAMPLE_RATE) * (ANNOT_N_FRAMES - AUDIO_N_SAMPLES / FFT_HOP) +
-  0.0018; //  this is a magic number, but it's needed for this to align properly
+const WINDOW_OFFSET = (FFT_HOP / AUDIO_SAMPLE_RATE) * (ANNOT_N_FRAMES - AUDIO_N_SAMPLES / FFT_HOP) + 0.0018; //  this is a magic number, but it's needed for this to align properly
 const MAX_FREQ_IDX = 87;
 const CONTOURS_BINS_PER_SEMITONE = 3;
 const ANNOTATIONS_BASE_FREQUENCY = 27.5; // lowest key on a piano
 const ANNOTATIONS_N_SEMITONES = 88; // number of piano keys
-const N_FREQ_BINS_CONTOURS =
-  ANNOTATIONS_N_SEMITONES * CONTOURS_BINS_PER_SEMITONE;
+const N_FREQ_BINS_CONTOURS = ANNOTATIONS_N_SEMITONES * CONTOURS_BINS_PER_SEMITONE;
 
 /** PORTED LIBROSA FUNCTIONS */
 
@@ -57,16 +54,14 @@ const N_FREQ_BINS_CONTOURS =
  * @param hz Frequency (in hz).
  * @returns The MIDI pitch.
  */
-const hzToMidi = (hz: number): number =>
-  12 * (Math.log2(hz) - Math.log2(440.0)) + 69;
+const hzToMidi = (hz: number): number => 12 * (Math.log2(hz) - Math.log2(440.0)) + 69;
 
 /**
  * Converts a MIDI pitch to its respect
  * @param midi The MIDI pitch
  * @returns The frequency of the MIDI pitch in Hz.
  */
-const midiToHz = (midi: number): number =>
-  440.0 * 2.0 ** ((midi - 69.0) / 12.0);
+const midiToHz = (midi: number): number => 440.0 * 2.0 ** ((midi - 69.0) / 12.0);
 
 /**
  * Converts from the model's "frame" time to seconds.
@@ -74,8 +69,7 @@ const midiToHz = (midi: number): number =>
  * @returns The time the frame maps to in seconds.
  */
 const modelFrameToTime = (frame: number): number =>
-  (frame * FFT_HOP) / AUDIO_SAMPLE_RATE -
-  WINDOW_OFFSET * Math.floor(frame / ANNOT_N_FRAMES);
+  (frame * FFT_HOP) / AUDIO_SAMPLE_RATE - WINDOW_OFFSET * Math.floor(frame / ANNOT_N_FRAMES);
 
 /** PORTED NUMPY FUNCTIONS */
 
@@ -87,11 +81,7 @@ const modelFrameToTime = (frame: number): number =>
 function argMax(arr: number[]): Optional<number> {
   return arr.length === 0
     ? null
-    : arr.reduce(
-        (maxIndex, currentValue, index) =>
-          arr[maxIndex] > currentValue ? maxIndex : index,
-        -1,
-      );
+    : arr.reduce((maxIndex, currentValue, index) => (arr[maxIndex] > currentValue ? maxIndex : index), -1);
 }
 
 /**
@@ -99,8 +89,7 @@ function argMax(arr: number[]): Optional<number> {
  * @param arr Input array.
  * @returns The location of the maximum element in each row.
  */
-const argMaxAxis1 = (arr: number[][]): number[] =>
-  arr.map(row => argMax(row) as number);
+const argMaxAxis1 = (arr: number[][]): number[] => arr.map(row => argMax(row) as number);
 
 /**
  *
@@ -110,23 +99,20 @@ const argMaxAxis1 = (arr: number[][]): number[] =>
  * the second representing axis 1. These arrays contain the locations
  * of arr2d which have values greater than threshold.
  */
-function whereGreaterThanAxis1(
-  arr2d: number[][],
-  threshold: number,
-): [number[], number[]] {
-    const outputX: number[] = [];
-    const outputY: number[] = [];
+function whereGreaterThanAxis1(arr2d: number[][], threshold: number): [number[], number[]] {
+  const outputX: number[] = [];
+  const outputY: number[] = [];
 
-    for (let i = 0; i < arr2d.length; i++) {
-        for (let j = 0; j < arr2d[i].length; j++) {
-            if (arr2d[i][j] > threshold) {
-                // This is what NumPy does but do we actually want this?
-                outputX.push(i);
-                outputY.push(j);
-            }
-        }
+  for (let i = 0; i < arr2d.length; i++) {
+    for (let j = 0; j < arr2d[i].length; j++) {
+      if (arr2d[i][j] > threshold) {
+        // This is what NumPy does but do we actually want this?
+        outputX.push(i);
+        outputY.push(j);
+      }
     }
-    return [outputX, outputY];
+  }
+  return [outputX, outputY];
 }
 
 /**
@@ -195,7 +181,7 @@ function min3dForAxis0(array: number[][][]): number[][] {
  * This does not match scipy which returns an n-d tuple with each dimension representing an axis of the
  * data
  */
-function argRelMax(array: number[][], order: number = 1): [number, number][] {
+function argRelMax(array: number[][], order = 1): [number, number][] {
   const result: [number, number][] = [];
   // could really use a transpose op right now. But that would also be expensive
   for (let col = 0; col < array[0].length; ++col) {
@@ -286,23 +272,15 @@ function constrainFrequency(
  * @param onsets Onsets output from evaluateModel.
  * @param frames frames output from evaluateModel.
  */
-function getInferredOnsets(
-  onsets: number[][],
-  frames: number[][],
-  nDiff: number = 2,
-): number[][] {
+function getInferredOnsets(onsets: number[][], frames: number[][], nDiff = 2): number[][] {
   const diffs = Array.from(Array(nDiff).keys())
     .map(n => n + 1)
     .map(n => {
-      const framesAppended: number[][] = Array(n)
-        .fill(Array(frames[0].length).fill(0))
-        .concat(frames);
+      const framesAppended: number[][] = Array(n).fill(Array(frames[0].length).fill(0)).concat(frames);
       const nPlus = framesAppended.slice(n);
       const minusN = framesAppended.slice(0, -n);
       if (nPlus.length !== minusN.length) {
-        throw new Error(
-          `nPlus length !== minusN length: ${nPlus.length} !== ${minusN.length}`,
-        );
+        throw new Error(`nPlus length !== minusN length: ${nPlus.length} !== ${minusN.length}`);
       }
       return nPlus.map((row, r) => row.map((v, c) => v - minusN[r][c]));
     });
@@ -342,14 +320,14 @@ function getInferredOnsets(
 export function outputToNotesPoly(
   frames: number[][],
   onsets: number[][],
-  onsetThresh: number = 0.5,
-  frameThresh: number = 0.3,
-  minNoteLen: number = 5,
-  inferOnsets: boolean = true,
+  onsetThresh = 0.5,
+  frameThresh = 0.3,
+  minNoteLen = 5,
+  inferOnsets = true,
   maxFreq: Optional<number> = null,
   minFreq: Optional<number> = null,
-  melodiaTrick: boolean = true,
-  energyTolerance: number = 11,
+  melodiaTrick = true,
+  energyTolerance = 11,
 ): NoteEvent[] {
   let inferredFrameThresh = frameThresh;
   if (inferredFrameThresh === null) {
@@ -374,10 +352,7 @@ export function outputToNotesPoly(
     peakThresholdMatrix[row][col] = inferredOnsets[row][col];
   });
 
-  const [noteStarts, freqIdxs] = whereGreaterThanAxis1(
-    peakThresholdMatrix,
-    onsetThresh,
-  );
+  const [noteStarts, freqIdxs] = whereGreaterThanAxis1(peakThresholdMatrix, onsetThresh);
 
   noteStarts.reverse();
   freqIdxs.reverse();
@@ -424,10 +399,7 @@ export function outputToNotesPoly(
 
       // add the note
       const amplitude =
-        frames
-          .slice(noteStartIdx, i)
-          .reduce((prev, row) => prev + row[freqIdx], 0) /
-        (i - noteStartIdx);
+        frames.slice(noteStartIdx, i).reduce((prev, row) => prev + row[freqIdx], 0) / (i - noteStartIdx);
 
       return {
         startFrame: noteStartIdx,
@@ -445,10 +417,7 @@ export function outputToNotesPoly(
       const [iMid, freqIdx] = remainingEnergy.reduce(
         (prevCoord, currRow, rowIdx) => {
           const colMaxIdx = argMax(currRow)!;
-          return currRow[colMaxIdx] >
-            remainingEnergy[prevCoord[0]][prevCoord[1]]
-            ? [rowIdx, colMaxIdx]
-            : prevCoord;
+          return currRow[colMaxIdx] > remainingEnergy[prevCoord[0]][prevCoord[1]] ? [rowIdx, colMaxIdx] : prevCoord;
         },
         [0, 0],
       );
@@ -501,15 +470,11 @@ export function outputToNotesPoly(
       }
 
       if (iEnd >= nFrames) {
-        throw new Error(
-          `iEnd is past end of times. (iEnd, times.length): (${iEnd}, ${nFrames})`,
-        );
+        throw new Error(`iEnd is past end of times. (iEnd, times.length): (${iEnd}, ${nFrames})`);
       }
 
       // amplitude = np.mean(frames[i_start:i_end, freq_idx])
-      const amplitude =
-        frames.slice(iStart, iEnd).reduce((sum, row) => sum + row[freqIdx], 0) /
-        (iEnd - iStart);
+      const amplitude = frames.slice(iStart, iEnd).reduce((sum, row) => sum + row[freqIdx], 0) / (iEnd - iStart);
 
       if (iEnd - iStart <= minNoteLen) {
         // note is too short or too quiet, skip it and remove the energy
@@ -537,44 +502,26 @@ export function outputToNotesPoly(
  * @returns The window, with the maximum value normalized to 1
  */
 const gaussian = (M: number, std: number): number[] =>
-  Array.from(Array(M).keys()).map(n =>
-    Math.exp((-1 * (n - (M - 1) / 2) ** 2) / (2 * std ** 2)),
-  );
+  Array.from(Array(M).keys()).map(n => Math.exp((-1 * (n - (M - 1) / 2) ** 2) / (2 * std ** 2)));
 
 const midiPitchToContourBin = (pitchMidi: number): number =>
-  12.0 *
-  CONTOURS_BINS_PER_SEMITONE *
-  Math.log2(midiToHz(pitchMidi) / ANNOTATIONS_BASE_FREQUENCY);
+  12.0 * CONTOURS_BINS_PER_SEMITONE * Math.log2(midiToHz(pitchMidi) / ANNOTATIONS_BASE_FREQUENCY);
 
-export function addPitchBendsToNoteEvents(
-  contours: number[][],
-  notes: NoteEvent[],
-  nBinsTolerance: number = 25,
-): NoteEvent[] {
+export function addPitchBendsToNoteEvents(contours: number[][], notes: NoteEvent[], nBinsTolerance = 25): NoteEvent[] {
   const windowLength = nBinsTolerance * 2 + 1;
   const freqGaussian = gaussian(windowLength, 5);
   return notes.map(note => {
-    const freqIdx = Math.floor(
-      Math.round(midiPitchToContourBin(note.pitchMidi)),
-    );
+    const freqIdx = Math.floor(Math.round(midiPitchToContourBin(note.pitchMidi)));
     const freqStartIdx = Math.max(freqIdx - nBinsTolerance, 0);
-    const freqEndIdx = Math.min(
-      N_FREQ_BINS_CONTOURS,
-      freqIdx + nBinsTolerance + 1,
-    );
+    const freqEndIdx = Math.min(N_FREQ_BINS_CONTOURS, freqIdx + nBinsTolerance + 1);
 
     const freqGuassianSubMatrix = freqGaussian.slice(
       Math.max(0, nBinsTolerance - freqIdx),
-      windowLength -
-        Math.max(0, freqIdx - (N_FREQ_BINS_CONTOURS - nBinsTolerance - 1)),
+      windowLength - Math.max(0, freqIdx - (N_FREQ_BINS_CONTOURS - nBinsTolerance - 1)),
     );
     const pitchBendSubmatrix = contours
       .slice(note.startFrame, note.startFrame + note.durationFrames)
-      .map(d =>
-        d
-          .slice(freqStartIdx, freqEndIdx)
-          .map((v, col) => v * freqGuassianSubMatrix[col]),
-      );
+      .map(d => d.slice(freqStartIdx, freqEndIdx).map((v, col) => v * freqGuassianSubMatrix[col]));
 
     const pbShift = nBinsTolerance - Math.max(0, nBinsTolerance - freqIdx);
     const bends = argMaxAxis1(pitchBendSubmatrix).map(v => v - pbShift);
@@ -592,9 +539,7 @@ export const noteFramesToTime = (notes: NoteEvent[]): NoteEventTime[] =>
       amplitude: note.amplitude,
       pitchBends: note.pitchBends,
       startTimeSeconds: modelFrameToTime(note.startFrame),
-      durationSeconds:
-        modelFrameToTime(note.startFrame + note.durationFrames) -
-        modelFrameToTime(note.startFrame),
+      durationSeconds: modelFrameToTime(note.startFrame + note.durationFrames) - modelFrameToTime(note.startFrame),
     };
   });
 
@@ -611,9 +556,7 @@ export function generateFileData(notes: NoteEventTime[]): Buffer {
     if (note.pitchBends !== undefined && note.pitchBends !== null) {
       note.pitchBends.forEach((bend, i) => {
         track.addPitchBend({
-          time:
-            note.startTimeSeconds +
-            (i * note.durationSeconds) / note.pitchBends!.length,
+          time: note.startTimeSeconds + (i * note.durationSeconds) / note.pitchBends!.length,
           value: bend,
         });
       });
