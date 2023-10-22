@@ -9,8 +9,11 @@ const nextConfig = {
   eslint: {
     ignoreDuringBuilds: process.env.NEXT_PUBLIC_IGNORE_BUILD_ERROR === "true",
   },
+  serverRuntimeConfig: {
+    fs: require('fs'),
+  },
   webpack: config => {
-    config.resolve.fallback = { fs: false, net: false, tls: false };
+    config.resolve.fallback = { net: false, tls: false };
     return config;
   },
 };

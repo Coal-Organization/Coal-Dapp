@@ -1,19 +1,15 @@
 import { addPitchBendsToNoteEvents, noteFramesToTime, outputToNotesPoly } from "./toMidi";
 import { BasicPitch } from "@spotify/basic-pitch";
 import * as tf from "@tensorflow/tfjs";
-import fs from "fs";
 
-export async function songTrad() {
+export async function songTrad(songArray: ArrayBuffer) {
   const audioCtx = new AudioContext();
   let audioBuffer = undefined;
 
   console.log("Loading audio...");
+  console.log(songArray);
 
-  // Read the audio file using the `fs` module.
-
-  const audioData = fs.readFileSync(`${__dirname}/songs/prod.mp3`);
-
-  audioCtx.decodeAudioData(audioData, async (_audioBuffer: AudioBuffer) => {
+  audioCtx.decodeAudioData(songArray, async (_audioBuffer: AudioBuffer) => {
     audioBuffer = _audioBuffer;
   });
 
@@ -25,7 +21,7 @@ export async function songTrad() {
   const onsets: number[][] = [];
   const contours: number[][] = [];
 
-  const basicPitch = new BasicPitch(tf.loadGraphModel(`file://${__dirname}/model/model.json`));
+  const basicPitch = new BasicPitch(tf.loadGraphModel(`./model/model.json`));
 
   await basicPitch.evaluateModel(
     audioBuffer as unknown as AudioBuffer,

@@ -21,6 +21,7 @@
     "hardhat:test": "yarn workspace @se-2/hardhat test",
     "test": "yarn hardhat:test",
     "start": "yarn workspace @se-2/nextjs dev",
+    "server": "yarn node packages/server/server.js",
     "next:lint": "yarn workspace @se-2/nextjs lint",
     "next:format": "yarn workspace @se-2/nextjs format",
     "next:check-types": "yarn workspace @se-2/nextjs check-types",
@@ -40,7 +41,10 @@
   },
   "dependencies": {
     "@spotify/basic-pitch": "^1.0.1",
+    "@tensorflow/tfjs-core": "^4.12.0",
     "@types/jest": "^29.5.6",
+    "audio-resampler": "^1.0.1",
+    "fs": "^0.0.1-security",
     "ts-loader": "^9.5.0",
     "typescript": "^5.2.2"
   }
