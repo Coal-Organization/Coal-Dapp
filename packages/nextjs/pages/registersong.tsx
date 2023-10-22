@@ -1,6 +1,11 @@
+import { songTrad } from "../../basicPitch/songenc";
 import { NextPage } from "next";
 
 const RegisterSong: NextPage = () => {
+  const handleClick = async () => {
+    await songTrad();
+  };
+
   return (
     <div className="flex items-center flex-col flex-grow pt-10 justify-center items-center">
       <div className="px-5">
@@ -10,7 +15,7 @@ const RegisterSong: NextPage = () => {
       </div>
       <div>
         <input type="file" accept="audio/*" />
-        <button>Upload</button>
+        <button onClick={() => handleClick}>Upload</button>
       </div>
     </div>
   );

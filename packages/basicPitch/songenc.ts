@@ -9,7 +9,7 @@ import {
   outputToNotesPoly,
 } from './toMidi';
 
-async function songTrad() {
+export async function songTrad() {
   const audioCtx = new AudioContext();
   let audioBuffer = undefined;
   
