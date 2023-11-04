@@ -32,20 +32,17 @@
   },
   "packageManager": "yarn@3.2.3",
   "devDependencies": {
+    "@tensorflow/tfjs-node": "^3.2.0",
     "husky": "^8.0.1",
-    "lint-staged": "^13.0.3",
-    "web-audio-api": "^0.2.2"
+    "lint-staged": "^13.0.3"
   },
   "resolutions": {
     "usehooks-ts@^2.7.2": "patch:usehooks-ts@npm:^2.7.2#./.yarn/patches/usehooks-ts-npm-2.7.2-fceffe0e43.patch"
   },
   "dependencies": {
+    "@material-tailwind/react": "^2.1.4",
     "@spotify/basic-pitch": "^1.0.1",
-    "@tensorflow/tfjs-core": "^4.12.0",
-    "@types/jest": "^29.5.6",
-    "audio-resampler": "^1.0.1",
-    "fs": "^0.0.1-security",
-    "ts-loader": "^9.5.0",
-    "typescript": "^5.2.2"
+    "@tensorflow/tfjs": "^4.12.0",
+    "@types/jest": "^29.5.6"
   }
 }
