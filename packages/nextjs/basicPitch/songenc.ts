@@ -2,8 +2,13 @@ import { Dispatch, SetStateAction } from "react";
 import { addPitchBendsToNoteEvents, noteFramesToTime, outputToNotesPoly } from "./toMidi";
 import { BasicPitch } from "@spotify/basic-pitch";
 import * as tf from "@tensorflow/tfjs";
+import { compareSongs } from "~~/services/comparisons/compareNotes";
 
-export async function songTrad(songArray: ArrayBuffer, setProgress: Dispatch<SetStateAction<number>>) {
+export async function songTrad(
+  songArray: ArrayBuffer,
+  setProgress: Dispatch<SetStateAction<number>>,
+  setCompared: Dispatch<SetStateAction<{ cp: boolean; text: string }>>,
+) {
   const audioCtx = new AudioContext({ sampleRate: 22050 });
   let audioBuffer = undefined;
 
@@ -53,4 +58,14 @@ export async function songTrad(songArray: ArrayBuffer, setProgress: Dispatch<Set
 
   console.log(notesPoly);
   console.log(notesPolyNoMelodia);
+
+  const result = await compareSongs();
+
+  if (result) {
+    console.log("Songs are the same");
+    setCompared({ cp: true, text: "Copyright violation detected" });
+  } else {
+    console.log("Songs are not the same");
+    setCompared({ cp: true, text: "No copyright violation detected." });
+  }
 }

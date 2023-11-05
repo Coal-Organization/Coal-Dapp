@@ -6,6 +6,7 @@ const RegisterSong: NextPage = () => {
   const [song, setSong] = useState<ArrayBuffer>();
   const [songName, setSongName] = useState<string>();
   const [progress, setProgress] = useState(0);
+  const [compared, setCompared] = useState<{ cp: boolean; text: string }>({ cp: false, text: "" });
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -30,7 +31,7 @@ const RegisterSong: NextPage = () => {
 
   const handleStart = async () => {
     if (song) {
-      await songTrad(song, setProgress);
+      await songTrad(song, setProgress, setCompared);
     } else {
       alert("No song selected");
     }
@@ -107,6 +108,11 @@ const RegisterSong: NextPage = () => {
           <div>
             <progress value={progress} max="1" />
             <span>{(progress * 100).toFixed(3)}%</span>
+          </div>
+        )}
+        {compared.cp && (
+          <div>
+            <span>{compared.text}</span>
           </div>
         )}
       </div>
