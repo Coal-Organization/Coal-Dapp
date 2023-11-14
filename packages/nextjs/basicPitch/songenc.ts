@@ -52,14 +52,13 @@ export async function songTrad(
 
   //frames, onsets, onSetTreshold, frameTreshold, minNoteLength, inferOnsets, maxFreq, minFreq, melodiaTrick
   //melodiaTrick -> remove semitones near a peak
-  const notesPolyNoMelodia = noteFramesToTime(
-    addPitchBendsToNoteEvents(contours, outputToNotesPoly(frames, onsets, 0.5, 0.3, 5, true, null, null, false)),
-  );
+  // const notesPolyNoMelodia = noteFramesToTime(
+  //   addPitchBendsToNoteEvents(contours, outputToNotesPoly(frames, onsets, 0.5, 0.3, 5, true, null, null, false)),
+  // );
 
   console.log(notesPoly);
-  console.log(notesPolyNoMelodia);
 
-  const result = await compareSongs();
+  const result = await compareSongs(notesPoly);
 
   if (result) {
     console.log("Songs are the same");
