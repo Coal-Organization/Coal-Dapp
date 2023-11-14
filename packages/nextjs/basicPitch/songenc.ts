@@ -8,6 +8,7 @@ export async function songTrad(
   songArray: ArrayBuffer,
   setProgress: Dispatch<SetStateAction<number>>,
   setCompared: Dispatch<SetStateAction<{ cp: boolean; text: string }>>,
+  setRegState: Dispatch<SetStateAction<0 | 1 | 2 | 3>>,
 ) {
   const audioCtx = new AudioContext({ sampleRate: 22050 });
   let audioBuffer = undefined;
@@ -65,6 +66,6 @@ export async function songTrad(
     setCompared({ cp: true, text: "Copyright violation detected" });
   } else {
     console.log("Songs are not the same");
-    setCompared({ cp: true, text: "No copyright violation detected." });
+    setRegState(1);
   }
 }

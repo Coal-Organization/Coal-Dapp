@@ -17,5 +17,6 @@ export async function compareSongs(notesPoly: NoteEventTime[]): Promise<boolean>
   if (true) {
     same = true;
   }
+
   return same;
 }
