@@ -3,13 +3,13 @@ import { NoteEventTime } from "~~/basicPitch/toMidi";
 export async function compareSongs(notes: NoteEventTime[]): Promise<boolean> {
   try {
     console.log("notes", notes);
-    let same = false;
-    if (true) {
-      same = true;
-    }
+    const same = false;
+    //if (true) {
+    //  same = true;
+    //}
     return same;
   } catch (e) {
     console.log(e);
-    return false;
+    return true;
   }
 }
