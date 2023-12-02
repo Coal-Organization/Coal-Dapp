@@ -68,6 +68,8 @@ const RegisterSong: NextPage = () => {
       fileInputRef.current.value = "";
       setSong(undefined);
       setSongName("");
+    } else {
+      console.log("No file input ref");
     }
   };
 

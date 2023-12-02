@@ -13,10 +13,7 @@ export async function compareSongs(notesPoly: NoteEventTime[]): Promise<boolean>
 
   console.log(midiFormat);
 
-  let same = false;
-  if (true) {
-    same = true;
-  }
+  const same = false;
 
   return same;
 }
