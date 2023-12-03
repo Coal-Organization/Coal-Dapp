@@ -58,7 +58,7 @@ export const SongForm = () => {
       form.artists.join(","),
       form.nature,
     );
-    console.log(res);
+    console.log(res.IpfsHash);
   };
 
   return (
