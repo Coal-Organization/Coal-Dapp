@@ -1,8 +1,9 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.22;
 
-// Add access control
-contract PayPer {
+import "@openzeppelin/contracts/access/AccessControl.sol";
+
+contract Loopist is AccessControl {
 
     struct Song {
         uint256 id;
@@ -34,9 +35,14 @@ contract PayPer {
     );
 
     uint256 public currentSongId = 0;
+
     mapping(uint256 => Song) public songs;
 
-    constructor() {}
+    bytes32 public constant LOOPIST_ROLE = keccak256("LOOPIST_ROLE");
+
+    constructor(address loopist) {
+        _grantRole(LOOPIST_ROLE, loopist);
+    }
    
    function buyPermission(uint256 songId, address addr, uint256 typeOf) external {
         
@@ -67,7 +73,6 @@ contract PayPer {
 
         emit SongAdded(currentSongId, newSong.date, author, metadata, newSong.copyrights, newSong.permissions);
     }
-
 
     function getSong(uint256 songId) public view returns(Song memory) {
         return songs[songId];
