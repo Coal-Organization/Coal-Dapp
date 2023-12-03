@@ -1,6 +1,7 @@
 import { useRef, useState } from "react";
 import { songTrad } from "../basicPitch/songenc";
 import { compareSvg, songInfoSvg, uploadSvg, validSvg } from "../components/svgs";
+import { SongForm } from "./states/songForm";
 import { NextPage } from "next";
 
 const RegisterSong: NextPage = () => {
@@ -73,32 +74,6 @@ const RegisterSong: NextPage = () => {
     }
   };
 
-  const jsonToIpfs = async (
-    name: string,
-    genre: string,
-    author: string,
-    contactInfo: string,
-    artists: string,
-    nature: string,
-  ) => {
-    const response = await fetch("./api/pinJsonToIpfs", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        name: name,
-        genre: genre,
-        author: author,
-        contactInfo: contactInfo,
-        artists: artists,
-        nature: nature,
-      }),
-    });
-    const result = await response.json();
-    console.log(result);
-  };
-
   return (
     <div className="flex items-center flex-col flex-grow pt-10 justify-center items-center">
       <div className="flex fixed left-20">
@@ -122,12 +97,6 @@ const RegisterSong: NextPage = () => {
       </div>
       {regState === 0 ? (
         <div>
-          <button
-            className="bg-blue-600 hover:border-white-700 text-white font-bold py-2 px-4 rounded"
-            onClick={() => jsonToIpfs("test", "test", "test", "test", "test", "test")}
-          >
-            Upload
-          </button>
           <div className="px-5">
             <h1 className="text-center mb-8">
               <span className="block text-4xl font-bold">Check for Copyright</span>
@@ -189,7 +158,7 @@ const RegisterSong: NextPage = () => {
       ) : (
         <></>
       )}
-      {regState === 1 ? <div>Register Song Info</div> : <></>}
+      {regState === 1 ? <SongForm /> : <></>}
     </div>
   );
 };
