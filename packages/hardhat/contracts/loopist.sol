@@ -15,7 +15,7 @@ contract Loopist is AccessControl {
     }
 
     struct Copyright {
-        address song;
+        uint256 songId;
         uint256 shares;
     }
 
@@ -57,7 +57,11 @@ contract Loopist is AccessControl {
         song.permissions.push(permission);
    }
 
-    function addSong(address author, string memory metadata, Copyright[] memory copyrights) external {
+    function addSong(
+        address author, 
+        string memory metadata, 
+        Copyright[] memory copyrights
+    ) external onlyRole(LOOPIST_ROLE) {
         currentSongId++;
 
         Song storage newSong = songs[currentSongId];
@@ -72,6 +76,10 @@ contract Loopist is AccessControl {
         }
 
         emit SongAdded(currentSongId, newSong.date, author, metadata, newSong.copyrights, newSong.permissions);
+    }
+
+    function getCurrentSongId() public view returns(uint256 id) {
+        return currentSongId;
     }
 
     function getSong(uint256 songId) public view returns(Song memory) {
