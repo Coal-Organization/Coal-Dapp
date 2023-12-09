@@ -1,8 +1,5 @@
+import { RegisterStepsProps } from "../../services/interfaces";
 import { compareSvg, songInfoSvg, uploadSvg, validSvg } from "../svgs";
-
-export interface RegisterStepsProps {
-  state: 0 | 1 | 2;
-}
 
 export const RegisterSteps: React.FC<RegisterStepsProps> = ({ state }) => {
   return (

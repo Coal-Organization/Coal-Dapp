@@ -1,11 +1,13 @@
 import { useRef, useState } from "react";
 import { songTrad } from "../basicPitch/songenc";
-import { compareSvg, songInfoSvg, uploadSvg, validSvg } from "../components/svgs";
-import { SongForm } from "./states/songForm";
+import { SongForm } from "../components/register/songForm";
+import { RegisterSteps } from "../components/register/steps";
+import { RegisterStepsProps } from "../services/interfaces";
 import { NextPage } from "next";
+import { ReviewSong } from "~~/components/register/reviewSong";
 
 const RegisterSong: NextPage = () => {
-  const [regState, setRegState] = useState<0 | 1 | 2 | 3>(0); // ["upload", "info", "compare", "deployed"]
+  const [regState, setRegState] = useState<RegisterStepsProps>({ state: 0 }); // ["upload", "info", "compare", "deployed"]
   const [song, setSong] = useState<ArrayBuffer | undefined>();
   const [songName, setSongName] = useState<string>();
   const [progress, setProgress] = useState(0);
@@ -77,25 +79,9 @@ const RegisterSong: NextPage = () => {
   return (
     <div className="flex items-center flex-col flex-grow pt-10 justify-center items-center">
       <div className="flex fixed left-20">
-        <ol className="relative text-gray-500 border-s border-gray-200 dark:border-gray-700 dark:text-gray-400">
-          <li className="mb-10 ms-6">
-            {regState > 0 ? validSvg : compareSvg}
-            <h3 className="font-medium leading-tight">Compare Song</h3>
-            <p className="text-sm">Choose file</p>
-          </li>
-          <li className="mb-10 ms-6">
-            {regState > 1 ? validSvg : songInfoSvg}
-            <h3 className="font-medium leading-tight">Song Info</h3>
-            <p className="text-sm">Add song details</p>
-          </li>
-          <li className="mb-10 ms-6">
-            {regState > 2 ? validSvg : uploadSvg}
-            <h3 className="font-medium leading-tight">Upload</h3>
-            <p className="text-sm">Deploy on ledger</p>
-          </li>
-        </ol>
+        <RegisterSteps state={regState.state} />
       </div>
-      {regState === 0 ? (
+      {regState.state === 0 ? (
         <div>
           <div className="px-5">
             <h1 className="text-center mb-8">
@@ -158,7 +144,8 @@ const RegisterSong: NextPage = () => {
       ) : (
         <></>
       )}
-      {regState === 1 ? <SongForm /> : <></>}
+      {regState.state === 1 ? <SongForm setState={setRegState} /> : <></>}
+      {regState.state === 2 ? <ReviewSong /> : <></>}
     </div>
   );
 };

@@ -1,9 +1,10 @@
-import React, { ChangeEvent, FormEvent, useState } from "react";
+import React, { ChangeEvent, FormEvent, useEffect, useState } from "react";
 import loopistABI from "../../generated/deployedContracts";
+import { SongFormProps } from "../../services/interfaces";
 import { useAccount, useContractRead, useContractWrite, usePrepareContractWrite } from "wagmi";
 import type { Address } from "wagmi";
 
-export const SongForm = () => {
+export const SongForm: React.FC<SongFormProps> = ({ setState }) => {
   const { address } = useAccount();
   const [songId, setSongId] = useState(0);
   const [metadata, setMetadata] = useState("");
@@ -33,6 +34,7 @@ export const SongForm = () => {
     },
   });
 
+  // Arguments for Smart Contract Call
   const getArgs = () => {
     if (!addr) {
       return;
@@ -48,6 +50,7 @@ export const SongForm = () => {
       {
         name: "addSong",
         type: "function",
+        account: "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
         stateMutability: "nonpayable",
         inputs: [
           { internalType: "address", name: "author", type: "address" },
@@ -69,7 +72,7 @@ export const SongForm = () => {
     args: getArgs(),
   });
 
-  const { write } = useContractWrite(config);
+  const { write, isSuccess } = useContractWrite(config);
 
   const jsonToIpfs = async (
     id: number,
@@ -123,6 +126,12 @@ export const SongForm = () => {
     setMetadata(res.IpfsHash);
   };
 
+  useEffect(() => {
+    if (isSuccess) {
+      setState({ state: 2 });
+    }
+  }, [isSuccess]);
+
   return (
     <div>
       <form onSubmit={handleSubmit} className="flex flex-col space-y-4 text-black">
@@ -147,8 +156,8 @@ export const SongForm = () => {
         </select>
         <button
           className="bg-blue-600 hover:border-white-700 text-white font-bold py-2 px-4 rounded"
-          disabled={!write}
-          onClick={() => handleSubmit}
+          disabled={!write /**&&**/}
+          onClick={() => write?.()}
         >
           Upload
         </button>
