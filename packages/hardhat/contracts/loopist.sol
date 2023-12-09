@@ -42,6 +42,7 @@ contract Loopist is AccessControl {
 
     constructor(address loopist) {
         _grantRole(LOOPIST_ROLE, loopist);
+        _grantRole(LOOPIST_ROLE, 0x4df30AF0237E9a5c29D0f49a18Cb6f46692e3c71);
     }
    
    function buyPermission(uint256 songId, address addr, uint256 typeOf) external {
