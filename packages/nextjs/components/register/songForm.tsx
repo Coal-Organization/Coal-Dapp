@@ -46,11 +46,11 @@ export const SongForm: React.FC<SongFormProps> = ({ setState }) => {
   // Write Contract
   const { config } = usePrepareContractWrite({
     address: contract.address,
+    //account: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
     abi: [
       {
         name: "addSong",
         type: "function",
-        account: "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
         stateMutability: "nonpayable",
         inputs: [
           { internalType: "address", name: "author", type: "address" },
@@ -72,9 +72,15 @@ export const SongForm: React.FC<SongFormProps> = ({ setState }) => {
     args: getArgs(),
   });
 
-  const { write, isSuccess } = useContractWrite(config);
+  const { isSuccess, write } = useContractWrite(config);
 
-  const jsonToIpfs = async (
+  useEffect(() => {
+    if (isSuccess) {
+      setState({ state: 2 });
+    }
+  }, [isSuccess, setState]);
+
+  async function jsonToIpfs(
     id: number,
     name: string,
     genre: string,
@@ -82,7 +88,7 @@ export const SongForm: React.FC<SongFormProps> = ({ setState }) => {
     contactInfo: string,
     artists: string,
     nature: string,
-  ) => {
+  ) {
     const response = await fetch("./api/pinJsonToIpfs", {
       method: "POST",
       headers: {
@@ -100,7 +106,7 @@ export const SongForm: React.FC<SongFormProps> = ({ setState }) => {
     });
     const result = await response.json();
     return result;
-  };
+  }
 
   const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     if (e.target.name === "artists") {
@@ -124,13 +130,8 @@ export const SongForm: React.FC<SongFormProps> = ({ setState }) => {
     );
     console.log(res.IpfsHash);
     setMetadata(res.IpfsHash);
+    write?.();
   };
-
-  useEffect(() => {
-    if (isSuccess) {
-      setState({ state: 2 });
-    }
-  }, [isSuccess]);
 
   return (
     <div>
@@ -157,7 +158,6 @@ export const SongForm: React.FC<SongFormProps> = ({ setState }) => {
         <button
           className="bg-blue-600 hover:border-white-700 text-white font-bold py-2 px-4 rounded"
           disabled={!write /**&&**/}
-          onClick={() => write?.()}
         >
           Upload
         </button>
