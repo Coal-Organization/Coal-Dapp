@@ -59,7 +59,7 @@ const useAddSong = ({ author, metadata, copyrights }: UseAddSongParams): UseWrit
     sendTransaction:
       write ??
       (() => {
-        throw new Error("Write function is not defined");
+        // throw new Error("Write function is not defined");
       }),
     data: data ?? undefined,
     isLoading,

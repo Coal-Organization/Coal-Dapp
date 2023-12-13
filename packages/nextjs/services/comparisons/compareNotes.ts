@@ -1,19 +1,23 @@
 import { NoteEventTime } from "@spotify/basic-pitch";
+import axios, { AxiosResponse } from "axios";
+import { generateFileData } from "~~/basicPitch/toMidi";
 
-export async function compareSongs(notesPoly: NoteEventTime[]): Promise<boolean> {
-  const midiFormat: { midi: number; time: number; duration: number; velocity: number }[] = [];
-  notesPoly.forEach(note => {
-    midiFormat.push({
-      midi: note.pitchMidi,
-      time: note.startTimeSeconds,
-      duration: note.durationSeconds,
-      velocity: note.amplitude,
-    });
-  });
+export async function compareSongs(notesPoly: NoteEventTime[]): Promise<AxiosResponse | null> {
+  const midiFile = generateFileData(notesPoly);
+  const blob = new Blob([midiFile as Buffer], { type: "audio/mid" });
+  const data = new FormData();
+  data.append("midiFile", blob, "song.mid");
 
-  console.log(midiFormat);
+  try {
+    const res = await axios.post("http://localhost:8888/compare", data);
+    if (res.status == 200) {
+      console.log(res.data);
+      return res;
+    }
+  } catch (error) {
+    console.error("Coal API error: ", error);
+    return null;
+  }
 
-  const same = false;
-
-  return same;
+  return null;
 }

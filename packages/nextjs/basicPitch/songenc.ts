@@ -1,5 +1,5 @@
 import { Dispatch, SetStateAction } from "react";
-import { addPitchBendsToNoteEvents, noteFramesToTime, outputToNotesPoly } from "./toMidi";
+import { addPitchBendsToNoteEvents, generateFileData, noteFramesToTime, outputToNotesPoly } from "./toMidi";
 import { BasicPitch } from "@spotify/basic-pitch";
 import * as tf from "@tensorflow/tfjs";
 import { compareSongs } from "~~/services/comparisons/compareNotes";
@@ -10,6 +10,7 @@ export async function songTrad(
   setProgress: Dispatch<SetStateAction<number>>,
   setCompared: Dispatch<SetStateAction<{ cp: boolean; text: string }>>,
   setRegState: Dispatch<SetStateAction<RegisterStepsProps>>,
+  setMidiFile: Dispatch<SetStateAction<Buffer | undefined>>,
 ) {
   const audioCtx = new AudioContext({ sampleRate: 22050 });
   let audioBuffer = undefined;
@@ -48,25 +49,33 @@ export async function songTrad(
     },
   );
 
-  const notesPoly = noteFramesToTime(
-    addPitchBendsToNoteEvents(contours, outputToNotesPoly(frames, onsets, 0.25, 0.25, 5)),
-  );
+  // const notesPoly = noteFramesToTime(
+  //   addPitchBendsToNoteEvents(contours, outputToNotesPoly(frames, onsets, 0.25, 0.25, 5)),
+  // );
 
   //frames, onsets, onSetTreshold, frameTreshold, minNoteLength, inferOnsets, maxFreq, minFreq, melodiaTrick
   //melodiaTrick -> remove semitones near a peak
-  // const notesPolyNoMelodia = noteFramesToTime(
-  //   addPitchBendsToNoteEvents(contours, outputToNotesPoly(frames, onsets, 0.5, 0.3, 5, true, null, null, false)),
-  // );
+  const notesPolyNoMelodia = noteFramesToTime(
+    addPitchBendsToNoteEvents(contours, outputToNotesPoly(frames, onsets, 0.5, 0.3, 5, true, null, null, false)),
+  );
 
-  console.log(notesPoly);
+  setMidiFile(generateFileData(notesPolyNoMelodia));
 
-  const result = await compareSongs(notesPoly);
+  const result = await compareSongs(notesPolyNoMelodia);
 
-  if (result) {
-    console.log("Songs are the same");
+  const matchingRate = result?.data["matchingRate"];
+
+  if (matchingRate === 1) {
+    console.log("Coal is on fire");
     setCompared({ cp: true, text: "Copyright violation detected" });
-  } else {
-    console.log("Songs are not the same");
+  } else if (matchingRate < 1 && matchingRate > 0.5) {
+    console.log("Coal is hot");
+    setCompared({ cp: true, text: "Copyright violation detected" });
+  } else if (matchingRate < 0.3) {
+    console.log("Coal is cold");
     setRegState({ state: 1 });
+  } else {
+    console.log("Coal is warm");
+    setCompared({ cp: true, text: "Copyright violation detected" });
   }
 }

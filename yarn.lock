@@ -7262,7 +7262,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"axios@npm:^1.4.0, axios@npm:^1.5.1":
+"axios@npm:^1.4.0, axios@npm:^1.5.1, axios@npm:^1.6.2":
   version: 1.6.2
   resolution: "axios@npm:1.6.2"
   dependencies:
@@ -17128,6 +17128,7 @@ __metadata:
     "@tensorflow/tfjs": ^4.12.0
     "@tensorflow/tfjs-node": ^3.2.0
     "@types/jest": ^29.5.6
+    axios: ^1.6.2
     form-data: ^4.0.0
     husky: ^8.0.1
     lint-staged: ^13.0.3

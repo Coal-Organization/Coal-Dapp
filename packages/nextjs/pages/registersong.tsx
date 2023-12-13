@@ -3,6 +3,7 @@ import { songTrad } from "../basicPitch/songenc";
 import { SongForm } from "../components/register/songForm";
 import { RegisterSteps } from "../components/register/steps";
 import { RegisterStepsProps } from "../services/interfaces";
+import axios from "axios";
 import { NextPage } from "next";
 import { ReviewSong } from "~~/components/register/reviewSong";
 
@@ -12,6 +13,7 @@ const RegisterSong: NextPage = () => {
   const [songName, setSongName] = useState<string>();
   const [progress, setProgress] = useState(0);
   const [compared, setCompared] = useState<{ cp: boolean; text: string }>({ cp: false, text: "" });
+  const [midiFile, setMidiFile] = useState<Buffer | undefined>();
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -36,7 +38,7 @@ const RegisterSong: NextPage = () => {
 
   const handleStart = async () => {
     if (song) {
-      await songTrad(song, setProgress, setCompared, setRegState);
+      await songTrad(song, setProgress, setCompared, setRegState, setMidiFile);
     } else {
       alert("No song selected");
     }
@@ -66,6 +68,27 @@ const RegisterSong: NextPage = () => {
     }
   };
 
+  const handleDownload = async () => {
+    if (midiFile) {
+      const blob = new Blob([midiFile as Buffer], { type: "audio/mid" });
+      // const link = document.createElement("a");
+      // const castedBlob = blob as Blob
+      // link.href = window.URL.createObjectURL(castedBlob);
+      // link.download = "song.mid";
+      // link.click();
+
+      const data = new FormData();
+      data.append("midiFile", blob, "song.mid");
+
+      try {
+        const res = await axios.post("http://localhost:8888/compare", data);
+        console.log(res);
+      } catch (error) {
+        console.error("Coal API error: ", error);
+      }
+    }
+  };
+
   const removeFile = () => {
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
@@ -89,7 +112,7 @@ const RegisterSong: NextPage = () => {
             </h1>
           </div>
           <div
-            className="dropzone mb-4 border-black border-2 p-4"
+            className="dropzone mb-4 border-black border-2 p-4 rounded"
             onDragOver={handleDragOver}
             onDragEnter={handleDragEnter}
             onDragLeave={handleDragLeave}
@@ -137,6 +160,18 @@ const RegisterSong: NextPage = () => {
                 <div>
                   <span>{compared.text}</span>
                 </div>
+              )}
+            </div>
+            <div className="mt-5">
+              {midiFile ? (
+                <button
+                  className="text-blue-700 hover:text-white border border-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2 dark:border-blue-500 dark:text-blue-500 dark:hover:text-white dark:hover:bg-blue-500 dark:focus:ring-blue-800"
+                  onClick={handleDownload}
+                >
+                  Download MIDI File
+                </button>
+              ) : (
+                ""
               )}
             </div>
           </div>
