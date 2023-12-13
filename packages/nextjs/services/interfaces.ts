@@ -1,6 +1,6 @@
 import { SendTransactionResult } from "@wagmi/core";
 
-interface Copyright {
+export interface Copyright {
   songId: bigint;
   shares: bigint;
 }
@@ -39,10 +39,18 @@ export interface UseWriteTransactionResponse {
   isSomeError: boolean;
 }
 
+export interface GoResponse {
+  Id: bigint;
+  Title: string;
+  Author: string;
+  MatchingRate: number;
+}
+
 export interface RegisterStepsProps {
   state: 0 | 1 | 2;
 }
 
 export interface SongFormProps {
   setState: React.Dispatch<React.SetStateAction<RegisterStepsProps>>;
+  copyright: Copyright | null;
 }

@@ -5,7 +5,7 @@ import { SongFormProps } from "../../services/interfaces";
 import { useAccount, useContractRead } from "wagmi";
 import type { Address } from "wagmi";
 
-export const SongForm: React.FC<SongFormProps> = ({ setState }) => {
+export const SongForm: React.FC<SongFormProps> = ({ setState, copyright }) => {
   const { address } = useAccount();
   const [songId, setSongId] = useState(0);
   const [metadata, setMetadata] = useState("");
@@ -37,7 +37,7 @@ export const SongForm: React.FC<SongFormProps> = ({ setState }) => {
   const { sendTransaction, isSuccess } = useAddSong({
     author: addr,
     metadata: metadata,
-    copyrights: [],
+    copyrights: copyright ? [copyright] : [],
   });
 
   useEffect(() => {
