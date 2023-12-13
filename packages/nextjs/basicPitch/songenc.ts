@@ -3,12 +3,13 @@ import { addPitchBendsToNoteEvents, noteFramesToTime, outputToNotesPoly } from "
 import { BasicPitch } from "@spotify/basic-pitch";
 import * as tf from "@tensorflow/tfjs";
 import { compareSongs } from "~~/services/comparisons/compareNotes";
+import { RegisterStepsProps } from "~~/services/interfaces";
 
 export async function songTrad(
   songArray: ArrayBuffer,
   setProgress: Dispatch<SetStateAction<number>>,
   setCompared: Dispatch<SetStateAction<{ cp: boolean; text: string }>>,
-  setRegState: Dispatch<SetStateAction<0 | 1 | 2 | 3>>,
+  setRegState: Dispatch<SetStateAction<RegisterStepsProps>>,
 ) {
   const audioCtx = new AudioContext({ sampleRate: 22050 });
   let audioBuffer = undefined;
@@ -66,6 +67,6 @@ export async function songTrad(
     setCompared({ cp: true, text: "Copyright violation detected" });
   } else {
     console.log("Songs are not the same");
-    setRegState(1);
+    setRegState({ state: 1 });
   }
 }
