@@ -1,21 +1,20 @@
-import React, { ChangeEvent, FormEvent, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import loopistABI from "../../generated/deployedContracts";
+import useAddSong from "../../hooks/coal/write/use-add-song";
 import { SongFormProps } from "../../services/interfaces";
-import { useAccount, useContractRead, useContractWrite, usePrepareContractWrite } from "wagmi";
+import { useAccount, useContractRead } from "wagmi";
 import type { Address } from "wagmi";
 
 export const SongForm: React.FC<SongFormProps> = ({ setState }) => {
   const { address } = useAccount();
   const [songId, setSongId] = useState(0);
   const [metadata, setMetadata] = useState("");
-  const [form, setForm] = useState({
-    name: "",
-    genre: "",
-    author: "",
-    contactInfo: "",
-    artists: [""],
-    nature: "",
-  });
+  const [name, setName] = useState("");
+  const [genre, setGenre] = useState("");
+  const [author, setAuthor] = useState("");
+  const [contactInfo, setContactInfo] = useState("");
+  const [artists, setArtists] = useState<string[]>([]);
+  const [nature, setNature] = useState("");
 
   // Contract
   const contract = loopistABI[31337][0].contracts.Loopist;
@@ -34,45 +33,12 @@ export const SongForm: React.FC<SongFormProps> = ({ setState }) => {
     },
   });
 
-  // Arguments for Smart Contract Call
-  const getArgs = () => {
-    if (!addr) {
-      return;
-    }
-    const args = [addr, metadata, [{ songId: songId, shares: 100 }]];
-    return args;
-  };
-
   // Write Contract
-  const { config } = usePrepareContractWrite({
-    address: contract.address,
-    //account: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
-    abi: [
-      {
-        name: "addSong",
-        type: "function",
-        stateMutability: "nonpayable",
-        inputs: [
-          { internalType: "address", name: "author", type: "address" },
-          { internalType: "string", name: "metadata", type: "string" },
-          {
-            internalType: "struct Loopist.Copyright[]",
-            name: "copyrights",
-            type: "tuple[]",
-            components: [
-              { internalType: "uint256", name: "songId", type: "uint256" },
-              { internalType: "uint256", name: "shares", type: "uint256" },
-            ],
-          },
-        ],
-        outputs: [],
-      },
-    ],
-    functionName: "addSong",
-    args: getArgs(),
+  const { sendTransaction, isSuccess } = useAddSong({
+    author: addr,
+    metadata: metadata,
+    copyrights: [],
   });
-
-  const { isSuccess, write } = useContractWrite(config);
 
   useEffect(() => {
     if (isSuccess) {
@@ -80,22 +46,14 @@ export const SongForm: React.FC<SongFormProps> = ({ setState }) => {
     }
   }, [isSuccess, setState]);
 
-  async function jsonToIpfs(
-    id: number,
-    name: string,
-    genre: string,
-    author: string,
-    contactInfo: string,
-    artists: string,
-    nature: string,
-  ) {
+  async function jsonToIpfs() {
     const response = await fetch("./api/pinJsonToIpfs", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        id: id,
+        id: songId,
         name: name,
         genre: genre,
         author: author,
@@ -108,60 +66,51 @@ export const SongForm: React.FC<SongFormProps> = ({ setState }) => {
     return result;
   }
 
-  const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    if (e.target.name === "artists") {
-      setForm({ ...form, [e.target.name]: e.target.value.split(",") });
-    } else {
-      setForm({ ...form, [e.target.name]: e.target.value });
-    }
+  const handleSubmit = async () => {
+    const res = await jsonToIpfs();
+    setMetadata(res.IpfsHash);
   };
 
-  const handleSubmit = async (e: FormEvent) => {
-    e.preventDefault();
-    //fetch id from smart contract
-    const res = await jsonToIpfs(
-      songId,
-      form.name,
-      form.genre,
-      form.author,
-      form.contactInfo,
-      form.artists.join(","),
-      form.nature,
-    );
-    console.log(res.IpfsHash);
-    setMetadata(res.IpfsHash);
-    write?.();
-  };
+  useEffect(() => {
+    if (!metadata) {
+      return;
+    }
+    sendTransaction();
+  }, [metadata, sendTransaction]);
 
   return (
-    <div>
-      <form onSubmit={handleSubmit} className="flex flex-col space-y-4 text-black">
-        <input type="text" name="name" onChange={handleChange} placeholder="Name" />
-        <select name="genre" onChange={handleChange} placeholder="Genre">
-          <option value="">Select genre</option>
-          <option value="pop">Pop</option>
-          <option value="rap">Rap</option>
-          <option value="rock">Rock</option>
-          <option value="jazz">Jazz</option>
-          <option value="blues">Blues</option>
-          <option value="country">Country</option>
-        </select>
-        <input type="text" name="author" onChange={handleChange} placeholder="Author" />
-        <input type="text" name="artists" onChange={handleChange} placeholder="Artists (comma separated)" />
-        <input type="text" name="contactInfo" onChange={handleChange} placeholder="Contact Info" />
-        <select name="nature" onChange={handleChange} className="border p-2">
-          <option value="">Select nature</option>
-          <option value="song">Song</option>
-          <option value="lyrics">Lyrics</option>
-          <option value="both">Both</option>
-        </select>
-        <button
-          className="bg-blue-600 hover:border-white-700 text-white font-bold py-2 px-4 rounded"
-          disabled={!write /**&&**/}
-        >
-          Upload
-        </button>
-      </form>
+    <div className="flex flex-col space-y-4 text-black">
+      <input type="text" name="name" onChange={e => setName(e.target.value)} placeholder="Name" />
+      <select name="genre" onChange={e => setGenre(e.target.value)} placeholder="Genre">
+        <option value="">Select genre</option>
+        <option value="pop">Pop</option>
+        <option value="rap">Rap</option>
+        <option value="rock">Rock</option>
+        <option value="jazz">Jazz</option>
+        <option value="blues">Blues</option>
+        <option value="country">Country</option>
+      </select>
+      <input type="text" name="author" onChange={e => setAuthor(e.target.value)} placeholder="Author" />
+      <input
+        type="text"
+        name="artists"
+        onChange={e => setArtists(e.target.value.split(","))}
+        placeholder="Artists (comma separated)"
+      />
+      <input type="text" name="contactInfo" onChange={e => setContactInfo(e.target.value)} placeholder="Contact Info" />
+      <select name="nature" onChange={e => setNature(e.target.value)} className="border p-2">
+        <option value="">Select nature</option>
+        <option value="song">Song</option>
+        <option value="lyrics">Lyrics</option>
+        <option value="both">Both</option>
+      </select>
+      <button
+        className="bg-blue-600 hover:border-white-700 text-white font-bold py-2 px-4 rounded"
+        disabled={!sendTransaction}
+        onClick={handleSubmit}
+      >
+        Upload
+      </button>
     </div>
   );
 };

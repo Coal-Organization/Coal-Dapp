@@ -1,3 +1,5 @@
+import { SendTransactionResult } from "@wagmi/core";
+
 interface Copyright {
   songId: bigint;
   shares: bigint;
@@ -9,6 +11,12 @@ interface Permission {
   date: bigint;
 }
 
+export interface UseAddSongParams {
+  author: string;
+  metadata: string;
+  copyrights: Copyright[];
+}
+
 export interface AddSongEventArgs {
   id?: bigint;
   date?: bigint;
@@ -16,6 +24,19 @@ export interface AddSongEventArgs {
   metadata?: string;
   copyrights?: ReadonlyArray<Copyright>;
   permissions?: ReadonlyArray<Permission>;
+}
+
+export interface UseWriteTransactionResponse {
+  sendTransaction: () => void;
+  data: SendTransactionResult | undefined;
+  isLoading: boolean;
+  isSuccess: boolean;
+  prepareError: string | null;
+  isPrepareError: boolean;
+  error: string | null;
+  isError: boolean;
+  errors: (string | unknown)[];
+  isSomeError: boolean;
 }
 
 export interface RegisterStepsProps {
